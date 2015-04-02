@@ -1,5 +1,9 @@
 class Injector {
   setInjector($injector) {
+    if (this.$injector) {
+      throw new Error('Injector component: $injector already exists');
+    }
+
     this.$injector = $injector;
   }
 

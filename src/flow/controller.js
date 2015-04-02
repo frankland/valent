@@ -1,4 +1,5 @@
 import Config from '../components/config';
+import { Route } from '../index';
 
 class ControllerModel {
   constructor(name) {
@@ -11,6 +12,13 @@ class ControllerModel {
 
   hasRoute() {
     return this.hasOwnProperty('route');
+  }
+}
+
+class RouteError extends Error {
+  constructor(method) {
+    this.message = `Route is not defined or is not allowed.
+    Before using @${method} method - add route url with @route method`;
   }
 }
 
@@ -46,14 +54,24 @@ export default class ControllerFlow  {
   /**
    * Route flow
    */
-  router(routeInstance) {
-    this.model.route = routeInstance;
+  //router(routeInstance) {
+  //  this.model.route = routeInstance;
+  //  return this;
+  //}
+
+  route(url) {
+    if (!this.model.hasRoute()) {
+      this.model.route = Route(this.model.name);
+    }
+
+    this.model.route.url(url);
+
     return this;
   }
 
   resolve() {
     if (!this.model.hasRoute()) {
-      throw new Error('Router is not defined or is not allowed');
+      throw new RouteError('resolve');
     }
 
     var resolve = arguments[0];
@@ -70,20 +88,9 @@ export default class ControllerFlow  {
     return this;
   }
 
-
-  route(url) {
-    if (!this.model.hasRoute()) {
-      throw new Error('Router is not defined or is not allowed');
-    }
-
-    this.model.route.url(url);
-
-    return this;
-  }
-
   template(template){
     if (!this.model.hasRoute()) {
-      throw new Error('Router is not defined or is not allowed');
+      throw new RouteError('template');
     }
 
     this.model.route.template(template);
@@ -93,7 +100,7 @@ export default class ControllerFlow  {
 
   templateUrl(templateUrl){
     if (!this.model.hasRoute()) {
-      throw new Error('Router is not defined or is not allowed');
+      throw new RouteError('templateUrl');
     }
 
     this.model.route.templateUrl(templateUrl);
@@ -101,12 +108,12 @@ export default class ControllerFlow  {
     return this;
   }
 
-  urlBuilder(builder) {
+  generate(generator) {
     if (!this.model.hasRoute()) {
-      throw new Error('Router is not defined or is not allowed');
+      throw new RouteError('generate');
     }
 
-    this.model.route.urlBuilder(builder);
+    this.model.route.generate(generator);
 
     return this;
   }
@@ -120,7 +127,7 @@ export default class ControllerFlow  {
   }
 
   logInfo() {
-    var moduleName = this.model.module || Config.getModuleName();
+    var moduleName = this.model.module || Config.getApplicationName();
     var group = `${this.model.name} at ${moduleName}`;
 
     console.groupCollapsed(group);

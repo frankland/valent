@@ -1,20 +1,49 @@
 import Config from '../components/config';
+import Router from '../components/router';
 
 class RouteModel {
   constructor(name) {
     if (name) {
-      this.module = name;
+      this.controller = name;
     }
 
+    this.urls =[];
+
+    this.generator = null;
     this.resolve = {};
-    this.base = '';
+  }
+
+  hasUrl() {
+    return !!this.urls.length;
+  }
+
+  hasGenerator() {
+    return this.generator || this.urls.length == 1;
+  }
+
+  getGenerator() {
+    if (!this.hasGenerator()) {
+      throw new Error('Url generator is not available');
+    }
+
+    var generator = null;
+
+    if (angular.isFunction(this.generator)) {
+      generator = this.generator;
+    } else {
+      generator = (function(url){
+        return () => url;
+      })(this.urls[0]);
+    }
+
+    return generator;
   }
 }
 
 
 export default class RouteFlow {
-  constructor(name) {
-    this.model = new RouteModel(name);
+  constructor(controller) {
+    this.model = new RouteModel(controller);
   }
 
   at(name) {
@@ -27,14 +56,12 @@ export default class RouteFlow {
   }
 
   url(url) {
-    this.model.url = url;
-    this.urlBuilder(url);
-
+    this.model.urls.push(url);
     return this;
   }
 
-  urlBuilder(builder) {
-    this.model.urlBuilder = builder;
+  generate(generator) {
+    this.model.generator = generator;
 
     return this;
   }
@@ -50,11 +77,11 @@ export default class RouteFlow {
     return this;
   }
 
-  controller(controller) {
-    this.model.controller = controller;
-
-    return this;
-  }
+  //controller(controller) {
+  //  this.model.controller = controller;
+  //
+  //  return this;
+  //}
 
   template(template) {
     this.model.template = template;
@@ -69,19 +96,22 @@ export default class RouteFlow {
   }
 
   logInfo() {
-    var moduleName = this.model.module || Config.getModuleName();
-    var group = `${this.model.base + this.model.url} at ${moduleName}`;
+    var group = `${this.model.controller}`;
     var resolve = Object.keys(this.model.resolve);
 
     console.groupCollapsed(group);
-    console.log(`controller: ${this.model.controller}`);
+    console.log(`base: ${Router.model.base}`);
+
+    for (var url of this.model.urls) {
+      console.log(`url: ${url}`);
+    }
 
     if (this.model.templateUrl) {
       console.log(`templateUrl: ${this.model.templateUrl}`);
     } else if (this.model.template) {
-      console.log(`template: ${this.model.template.slice(0, 50).replace(/\n|\r|\r\n/mg, '')}...`);
+      console.log(`template: ${this.model.template.slice(0, 200).replace(/\n|\r|\r\n/mg, '')}...`);
     } else {
-      console.log(`template is wrong`);
+      console.error(`template is not defined`);
     }
 
     if (resolve.length) {

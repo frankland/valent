@@ -6,7 +6,6 @@ var scopeKey = Symbol('$scope');
 
 export default class Scope {
   constructor(name, $scope) {
-
     /**
      * private attributes
      */
@@ -20,6 +19,7 @@ export default class Scope {
 
     this.parse = Injector.get('$parse');
 
+    this.controller = name;
     this.pushCounter = 0;
   }
 
@@ -50,7 +50,6 @@ export default class Scope {
   get(key) {
     var getter = this.getter(key);
     var scope = this[scopeKey];
-
     return getter(scope);
   }
 
@@ -58,8 +57,6 @@ export default class Scope {
     var scope = this[scopeKey];
     return this.getter(key).bind(null, scope);
   }
-
-
 
   log(message) {
     var logger = this.getLogger();
@@ -101,7 +98,6 @@ export default class Scope {
     var message = `#${pushCounter} push ${transition.size} changes: [${keys.join(', ')}]`;
     logger.log(message, transition);
 
-
     var scope = this[scopeKey];
 
     transition.forEach((value, key) => {
@@ -124,7 +120,7 @@ export default class Scope {
 
     var phase = scope.$root.$$phase;
     if(phase == '$apply' || phase == '$digest') {
-      if(fn && (typeof(fn) === 'function')) {
+      if(angular.isFunction(fn)) {
         fn();
       }
     } else {
@@ -133,6 +129,10 @@ export default class Scope {
   };
 
   pushAndApply(...args) {
+    this.safeApply(() => this.push(...args));
+  }
+
+  force(...args) {
     this.safeApply(() => this.push(...args));
   }
 }

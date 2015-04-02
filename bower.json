@@ -1,7 +1,7 @@
 {
-  "name": "ngx",
+  "name": "valent",
   "version": "0.0.8",
-  "main": "src/runtime.js",
+  "main": "src/index.js",
   "authors": [
     "tuchk4"
   ],

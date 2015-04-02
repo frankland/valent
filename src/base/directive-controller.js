@@ -25,7 +25,7 @@ export default class DirectiveController extends Controller {
       func = arguments[1];
     }
 
-    super(pipe, event, func);
+    super.listen(pipe, event, func);
   }
 
   sync() {

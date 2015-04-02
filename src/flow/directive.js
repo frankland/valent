@@ -15,12 +15,28 @@ class DirectiveModel {
 
     this.dependencies = [];
 
-
-    this.restrict = 'E';
     this.replace = true;
     this.scope = {};
 
     this.controller = new Controller( `<${name}>`);
+  }
+
+  hasTemplate() {
+    return this.hasOwnProperty('template') || this.hasOwnProperty('templateUrl');
+  }
+
+  getRestrict() {
+    var restrict = null;
+
+    if (this.hasOwnProperty('restrict')) {
+      restrict = this.restrict;
+    } else if (this.hasTemplate()) {
+      restrict = 'E';
+    } else {
+      restrict = 'A';
+    }
+
+    return restrict;
   }
 
   hasModel() {
@@ -99,13 +115,13 @@ export default class DirectiveFlow  {
   }
 
   logInfo() {
-    var moduleName = this.model.module || Config.getModuleName();
+    var moduleName = this.model.module || Config.getApplicationName();
     var ControllerModel = this.model.getControllerModel();
     var group = `${ControllerModel.name} at ${moduleName}`;
 
     console.groupCollapsed(group);
 
-    console.log(`restrict: ${this.model.restrict}`);
+    console.log(`restrict: ${this.model.getRestrict()}`);
     console.log(`replace: ${this.model.replace}`);
 
     if (!!Object.keys(this.model.scope).length) {

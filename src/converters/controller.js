@@ -1,5 +1,8 @@
 import Scope from '../wrappers/scope';
 import Config from '../components/config';
+import Router from '../components/router';
+
+var RouterModel = Router.model;
 
 function Convert(ControllerModel) {
 
@@ -25,7 +28,8 @@ function Convert(ControllerModel) {
     });
   };
 
-  var deps = ControllerModel.dependencies;
+  var resolve = Object.keys(RouterModel.resolve);
+  var deps = resolve.concat(ControllerModel.dependencies);
 
   return ['$scope'].concat([...deps, ControllerFunction]);
 }

@@ -16,18 +16,18 @@ export function Directive(name) {
 }
 
 export function Controller(name) {
-
   var component = new ControllerFlow(name);
   manager.controller(component);
 
-  var Route = new RouteFlow();
-  Route.controller(name);
-
-  manager.route(Route);
-
-  return component.router(Route);
+  return component;
 }
 
+export function Route(name) {
+  var component = new RouteFlow(name);
+  manager.route(component);
+
+  return component;
+}
 
 export function Factory(name) {
 

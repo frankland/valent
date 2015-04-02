@@ -23,10 +23,8 @@ var colors = [
 
 var config = {
   colors,
-  scopeLogs: false,
-  moduleName: 'ngx.default',
-  routeProviderName: '$routeProvider',
-  baseUrl: ''
+  debug: false,
+  app: 'frankland.valent'
 };
 
 class ConfigManager {
@@ -34,44 +32,24 @@ class ConfigManager {
 
   }
 
-  setBaseUrl(baseUrl) {
-    config.baseUrl = baseUrl;
-  }
-
-  getBaseUrl() {
-    return config.baseUrl;
-  }
-
   getColors() {
     return config.colors;
   }
 
-  enableScopeLogs(){
-    config.scopeLogs = true;
+  debug(debug){
+    config.debug = !debug;
   }
 
-  disableScopeLogs(){
-    config.scopeLogs = false;
+  isDebug() {
+    return colors.debug;
   }
 
-  isScopeLogsEnabled() {
-    return !!config.scopeLogs;
+  getApplicationName() {
+    return config.app;
   }
 
-  setRouteProviderName(provider) {
-    config.routeProviderName = provider;
-  }
-
-  getRouteProviderName() {
-    return config.routeProviderName;
-  }
-
-  setModuleName(name) {
-    config.moduleName = name;
-  }
-
-  getModuleName() {
-    return config.moduleName;
+  setApplicationName(name) {
+    config.app = name;
   }
 }
 

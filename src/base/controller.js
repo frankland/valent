@@ -1,4 +1,5 @@
 import Injector from '../components/injector';
+import Url from '../components/url';
 
 var unsubscribe = Symbol('unsubscribe');
 
@@ -19,6 +20,10 @@ export default class Controller {
     this.scope.error(message);
   }
 
+  url() {
+    return Url.get(this.scope.controller).apply(null, arguments);
+  }
+
   /**
    * Scope shortcuts
    */
@@ -29,6 +34,10 @@ export default class Controller {
 
   pushAndApply() {
     this.scope.pushAndApply.apply(this.scope, arguments);
+  }
+
+  force() {
+    this.scope.force.apply(this.scope, arguments);
   }
 
   commit() {

@@ -5,6 +5,7 @@ import RouteConverter from './converters/route';
 import Injector from './components/injector';
 import Config from './components/config';
 
+
 export default class Manager {
   constructor() {
     this.storage = {
@@ -35,7 +36,8 @@ export default class Manager {
     var storage = this.storage;
     var types = Object.keys(storage);
 
-    console.groupCollapsed('Runtime statistics');
+    var main = 'Valent statistics';
+    console.groupCollapsed(main);
 
     for (var type of types) {
       var total = storage[type].length;
@@ -59,79 +61,51 @@ export default class Manager {
       }
     }
 
-    console.groupEnd('Runtime statistics');
-  }
-
-  registerControllers(moduleName){
-    var controllers = this.storage.controller;
-
-    if (moduleName) {
-      for (var controller of controllers) {
-        if (!controller.hasModule()) {
-          controller.at(moduleName);
-        }
-
-        ControllerConverter(controller);
-      }
-    }
-  }
-
-  registerDirectives(moduleName){
-    var directives = this.storage.directive;
-
-    if (moduleName) {
-      for (var directive of directives) {
-        if (!directive.hasModule()) {
-          directive.at(moduleName);
-        }
-
-        DirectiveConverter(directive);
-      }
-    }
-  }
-
-  registerFactories(moduleName){
-    var factories = this.storage.factory;
-
-    if (moduleName) {
-      for (var factory of factories) {
-        if (!factory.hasModule()) {
-          factory.at(moduleName);
-        }
-
-        FactoryConverter(factory);
-      }
-    }
-  }
-
-  registerRoutes(moduleName){
-    var routes = this.storage.route;
-
-    if (moduleName) {
-      for (var route of routes) {
-        if (!route.hasModule()) {
-          route.at(moduleName);
-        }
-      }
-    }
-
-    RouteConverter(routes);
-  }
-
-  initializeInjector(moduleName) {
-    angular.module(moduleName)
-        .run(['$injector', function($injector) {
-          Injector.setInjector($injector);
-        }]);
+    console.groupEnd(main);
   }
 
   register() {
-    var moduleName = Config.getModuleName();
+    var app = Config.getApplicationName();
 
-    this.initializeInjector(moduleName);
-    this.registerControllers(moduleName);
-    this.registerDirectives(moduleName);
-    this.registerFactories(moduleName);
-    this.registerRoutes(moduleName);
+    //createApplication(app);
+    initializeInjector(app);
+
+    registerComponents(app, this.storage.controller, ControllerConverter);
+    registerComponents(app, this.storage.directive, DirectiveConverter);
+    registerComponents(app, this.storage.factory, FactoryConverter);
+    registerRoutes(app, this.storage.route);
+  }
+}
+
+function initializeInjector(app) {
+  angular.module(app)
+      .run(['$injector', function($injector) {
+        Injector.setInjector($injector);
+      }]);
+}
+
+function createApplication(app) {
+  angular.module(app, []);
+}
+
+function registerRoutes(app, routes){
+  if (app) {
+    for (var route of routes) {
+      if (!route.hasModule()) {
+        route.at(app);
+      }
+    }
+  }
+
+  RouteConverter(routes);
+}
+
+function registerComponents(app, components, register) {
+  for (var component of components) {
+    if (!component.hasModule()) {
+      component.at(app);
+    }
+
+    register(component);
   }
 }

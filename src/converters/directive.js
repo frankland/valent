@@ -13,7 +13,7 @@ function Convert(DirectiveModel) {
 
     /**
      * Create controller Instance
-     //*/
+     */
     var scope = new DirectiveScope(ControllerModel.name, $scope);
 
     /**
@@ -93,9 +93,11 @@ function Convert(DirectiveModel) {
   var scopeConfig = DirectiveModel.scope;
   scopeConfig.pipe = '&pipe';
 
+  var restrict = DirectiveModel.getRestrict();
+
   var DirectiveConfig = {
     transclude: !!DirectiveModel.transclude,
-    restrict: DirectiveModel.restrict,
+    restrict: restrict,
     replace: DirectiveModel.replace,
     scope: DirectiveModel.scope,
     controller: di,

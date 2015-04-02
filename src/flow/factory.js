@@ -1,4 +1,4 @@
-class ServiceModel {
+class FactoryModel {
   constructor(name) {
     if (name) {
       this.name = name;
@@ -8,9 +8,9 @@ class ServiceModel {
   }
 }
 
-export default class ServiceFlow {
+export default class FactoryFlow {
   constructor(name) {
-    this.model = new ServiceModel(name);
+    this.model = new FactoryModel(name);
   }
 
   at(name) {

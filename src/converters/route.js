@@ -1,12 +1,15 @@
-import UrlManager from '../url-manager.js';
+import Url from '../components/url';
 import Config from '../components/config';
+import Router from '../components/router';
+
+var RouterModel = Router.model;
 
 function Convert(RouteModel) {
 
   var config = {
     controller: RouteModel.controller,
     reloadOnSearch: false,
-    resolve: RouteModel.resolve
+    resolve: angular.extend(RouteModel.resolve, RouterModel.resolve)
   };
 
   if (RouteModel.template && RouteModel.templateUrl) {
@@ -21,16 +24,12 @@ function Convert(RouteModel) {
     throw new Error('@template or @templateUrl should be described');
   }
 
-  UrlManager.addRoute(RouteModel.controller, RouteModel.urlBuilder);
-
-  var baseUrl = RouteModel.base;
-
-  if (!baseUrl) {
-    baseUrl = Config.getBaseUrl();
+  if (RouteModel.hasGenerator()) {
+    Url.addRoute(RouteModel.controller, RouteModel.getGenerator());
   }
 
   return {
-    url: baseUrl + RouteModel.url,
+    urls: RouteModel.urls,
     config: config
   };
 }
@@ -57,19 +56,36 @@ function byModule(routes) {
   return sorted;
 }
 
-export default function(routes) {
 
+export default function(routes) {
   var sorted = byModule(routes);
-  var routeProvider = Config.getRouteProviderName();
+  var app = Config.getApplicationName();
+
+  angular.module(app).config(['$locationProvider', '$routeProvider',
+    ($locationProvider, $routeProvider) => {
+      if (RouterModel.isHtml5()) {
+        $locationProvider.html5Mode({
+          enabled: true,
+          requireBase: false
+        })
+      }
+
+      var otherwise = RouterModel.getOtherwise();
+      if (otherwise) {
+        $routeProvider.otherwise(otherwise);
+      }
+    }]);
 
   for (var name of Object.keys(sorted)) {
-
     angular.module(name)
-        .config([routeProvider, function($routeProvider) {
+        .config([RouterModel.provider, ($routeProvider) => {
           for (var RouteModel of sorted[name]) {
-            var {url, config } = Convert(RouteModel);
+            var {urls, config} = Convert(RouteModel);
+            var base = RouterModel.base;
 
-            $routeProvider.when(url, config);
+            for (var url of urls) {
+              $routeProvider.when(base + url, config);
+            }
           }
         }]);
   }
