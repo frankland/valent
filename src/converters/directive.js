@@ -27,7 +27,7 @@ function Convert(DirectiveModel) {
         pipeInstance = $scope.pipe();
 
         if (!(pipeInstance instanceof pipe)) {
-          throw new Error('Wrong instance of pipe');
+          throw new Error('Wrong instance of pipe ' + DirectiveModel.name);
         }
       } else {
         pipeInstance = new pipe();
