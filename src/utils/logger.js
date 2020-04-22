@@ -111,8 +111,9 @@ export default class Logger {
   static create(name) {
     let background = getColor();
     let color = '#fff;';
+    let title = ' ' + name + ' ';
 
-    return new Logger(name, color, background);
+    return new Logger(title, color, background);
   }
 
   static resetColors() {
